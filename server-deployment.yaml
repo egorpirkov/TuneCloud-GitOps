@@ -28,9 +28,10 @@ spec:
               value: egorpirkov
             - name: ADMIN_PASSWORD
               value: admin
-              envFrom:
-                - secretRef:
-                    name: spotify-secret
+
+          envFrom:
+            - secretRef:
+                name: spotify-secret
           ports:
             - containerPort: 4000
           volumeMounts:
