@@ -18,12 +18,16 @@ spec:
         - name: ghcr-secret
       containers:
         - name: tunecloud-server
-          image: ghcr.io/egorpirkov/tunecloud-server:sha-9c90e33
+          image: ghcr.io/egorpirkov/tunecloud-server:sha-4fddbb2
           env:
             - name: DATABASE_URL
               value: "postgresql://tunecloud:tunecloud@tunecloud-db:5432/tunecloud"
             - name: MUSIC_DIR
               value: "/music"
+            - name: ADMIN_USERNAME
+              value: egorpirkov
+            - name: ADMIN_PASSWORD
+              value: admin
           ports:
             - containerPort: 4000
           volumeMounts:
