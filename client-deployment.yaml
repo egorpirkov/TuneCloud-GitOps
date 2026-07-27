@@ -12,6 +12,8 @@ spec:
       labels:
         app: tunecloud-client
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
       - name: tunecloud-client
         image: ghcr.io/egorpirkov/tunecloud-client:latest

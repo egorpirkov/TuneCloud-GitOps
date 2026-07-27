@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tunecloud-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tunecloud-db
+  template:
+    metadata:
+      labels:
+        app: tunecloud-db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:16-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          value: "tunecloud"
+        - name: POSTGRES_PASSWORD
+          value: "tunecloud"
+        - name: POSTGRES_DB
+          value: "tunecloud"
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - tunecloud
+            - -d
+            - tunecloud
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        - name: init-script
+          mountPath: /docker-entrypoint-initdb.d/init.sql
+          subPath: init.sql
+
+      volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+      - name: init-script
+        configMap:
+          name: postgres-init-script

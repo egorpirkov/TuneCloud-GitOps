@@ -12,8 +12,23 @@ spec:
       labels:
         app: tunecloud-server
     spec:
+      securityContext:
+        fsGroup: 1000
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
       - name: tunecloud-server
         image: ghcr.io/egorpirkov/tunecloud-server:latest
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://tunecloud:tunecloud@tunecloud-db:5432/tunecloud"
         ports:
         - containerPort: 4000
+
+        volumeMounts:
+        - name: covers-storage
+          mountPath: /app/covers
+    volumes:
+      - name: covers-storage
+        persistentVolumeClaim:
+          claimName: covers-pvc
