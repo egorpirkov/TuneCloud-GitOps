@@ -32,6 +32,9 @@ spec:
           envFrom:
             - secretRef:
                 name: spotify-secret
+            - secretRef:
+                name: jwt-secret
+
           ports:
             - containerPort: 4000
           volumeMounts:
