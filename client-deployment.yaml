@@ -16,6 +16,6 @@ spec:
         - name: ghcr-secret
       containers:
         - name: tunecloud-client
-          image: ghcr.io/egorpirkov/tunecloud-client:sha-0834686
+          image: ghcr.io/egorpirkov/tunecloud-client:sha-f1f4fc9
           ports:
             - containerPort: 80
