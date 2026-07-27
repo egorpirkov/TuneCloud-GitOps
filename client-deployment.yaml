@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tunecloud-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tunecloud-client
+  template:
+    metadata:
+      labels:
+        app: tunecloud-client
+    spec:
+      containers:
+      - name: tunecloud-client
+        image: ghcr.io/egorpirkov/tunecloud-client:latest
+        ports:
+        - containerPort: 80
