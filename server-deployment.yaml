@@ -17,18 +17,25 @@ spec:
       imagePullSecrets:
         - name: ghcr-secret
       containers:
-      - name: tunecloud-server
-        image: ghcr.io/egorpirkov/tunecloud-server:latest
-        env:
-        - name: DATABASE_URL
-          value: "postgresql://tunecloud:tunecloud@tunecloud-db:5432/tunecloud"
-        ports:
-        - containerPort: 4000
-
-        volumeMounts:
+        - name: tunecloud-server
+          image: ghcr.io/egorpirkov/tunecloud-server:sha-0834686
+          env:
+            - name: DATABASE_URL
+              value: "postgresql://tunecloud:tunecloud@tunecloud-db:5432/tunecloud"
+            - name: MUSIC_DIR
+              value: "/music"
+          ports:
+            - containerPort: 4000
+          volumeMounts:
+            - name: covers-storage
+              mountPath: /app/covers
+            - name: music-storage
+              mountPath: /music
+      volumes:
         - name: covers-storage
-          mountPath: /app/covers
-    volumes:
-      - name: covers-storage
-        persistentVolumeClaim:
-          claimName: covers-pvc
+          persistentVolumeClaim:
+            claimName: covers-pvc
+        - name: music-storage
+          hostPath:
+            path: /home/pirkov/music
+            type: Directory

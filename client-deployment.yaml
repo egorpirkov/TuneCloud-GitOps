@@ -15,7 +15,7 @@ spec:
       imagePullSecrets:
         - name: ghcr-secret
       containers:
-      - name: tunecloud-client
-        image: ghcr.io/egorpirkov/tunecloud-client:latest
-        ports:
-        - containerPort: 80
+        - name: tunecloud-client
+          image: ghcr.io/egorpirkov/tunecloud-client:sha-0834686
+          ports:
+            - containerPort: 80
