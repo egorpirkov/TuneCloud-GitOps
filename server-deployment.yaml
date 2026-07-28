@@ -46,5 +46,5 @@ spec:
             claimName: covers-pvc
         - name: music-storage
           hostPath:
-            path: /home/pirkov/music
+            path: /mnt/HDD/Muzl0
             type: Directory
