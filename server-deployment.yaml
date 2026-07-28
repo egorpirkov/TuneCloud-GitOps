@@ -18,7 +18,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: tunecloud-server
-          image: ghcr.io/egorpirkov/tunecloud-server:sha-224950e
+          image: ghcr.io/egorpirkov/tunecloud-server:sha-fbb283d
           env:
             - name: DATABASE_URL
               value: "postgresql://tunecloud:tunecloud@tunecloud-db:5432/tunecloud"
