@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: tunecloud-client
 spec:
-  replicas: 1
+  replicas: {{ .Values.client.replicas }}
   selector:
     matchLabels:
       app: tunecloud-client

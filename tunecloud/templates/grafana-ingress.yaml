@@ -5,7 +5,7 @@ metadata:
   namespace: monitoring
 spec:
   rules:
-  - host: grafana.tunecloud.local
+  - host: {{ .Values.global.grafanaDomain }}
     http:
       paths:
       - path: /
