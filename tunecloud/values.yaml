@@ -1,11 +1,9 @@
 global:
   domain: tunecloud.local
   grafanaDomain: grafana.tunecloud.local
-
 server:
-  image: ghcr.io/egorpirkov/tunecloud-server:sha-b091e4a
+  image: ghcr.io/egorpirkov/tunecloud-server:sha-52bdbc0
   replicas: 1
-
 client:
-  image: ghcr.io/egorpirkov/tunecloud-client:sha-b091e4a
+  image: ghcr.io/egorpirkov/tunecloud-client:sha-52bdbc0
   replicas: 1
