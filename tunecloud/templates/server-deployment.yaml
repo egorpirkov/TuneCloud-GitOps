@@ -24,15 +24,13 @@ spec:
               value: "postgresql://tunecloud:tunecloud@tunecloud-db:5432/tunecloud"
             - name: MUSIC_DIR
               value: "/music"
-            - name: ADMIN_USERNAME
-              value: egorpirkov
-            - name: ADMIN_PASSWORD
-              value: admin
           envFrom:
             - secretRef:
                 name: spotify-secret
             - secretRef:
                 name: jwt-secret
+            - secretRef:
+                name: admin
           ports:
             - containerPort: 4000
           volumeMounts:
