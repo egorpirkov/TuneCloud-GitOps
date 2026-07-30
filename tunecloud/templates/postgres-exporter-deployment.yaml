@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tunecloud-db-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tunecloud-db-exporter
+  template:
+    metadata:
+      labels:
+        app: tunecloud-db-exporter
+    spec:
+      containers:
+        - name: tunecloud-db-exporter
+          image: prometheuscommunity/postgres-exporter:v0.15.0
+          env:
+            - name: DATA_SOURCE_NAME
+              value: "postgresql://tunecloud:tunecloud@tunecloud-db:5432/tunecloud?sslmode=disable"
+          ports:
+            - name: db-metrics
+              containerPort: 9187

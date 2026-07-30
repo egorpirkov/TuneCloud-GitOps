@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: tunecloud-db-exporter-monitor
+  labels:
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: tunecloud-db-exporter
+  endpoints:
+    - port: db-metrics
+      path: /metrics
+      interval: 15s
