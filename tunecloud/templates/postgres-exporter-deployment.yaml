@@ -15,9 +15,12 @@ spec:
       containers:
         - name: tunecloud-db-exporter
           image: prometheuscommunity/postgres-exporter:v0.15.0
+          envFrom:
+          - secretRef:
+              name: postgres-secrets
           env:
             - name: DATA_SOURCE_NAME
-              value: "postgresql://tunecloud:tunecloud@tunecloud-db:5432/tunecloud?sslmode=disable"
+              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@tunecloud-db:5432/$(POSTGRES_DB)?sslmode=disable"
           ports:
             - name: db-metrics
               containerPort: 9187

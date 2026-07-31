@@ -19,11 +19,6 @@ spec:
       containers:
         - name: tunecloud-server
           image: {{ .Values.server.image }}
-          env:
-            - name: DATABASE_URL
-              value: "postgresql://tunecloud:tunecloud@tunecloud-db:5432/tunecloud"
-            - name: MUSIC_DIR
-              value: "/music"
           envFrom:
             - secretRef:
                 name: spotify-secret
@@ -31,6 +26,13 @@ spec:
                 name: jwt-secret
             - secretRef:
                 name: admin
+            - secretRef:
+                name: postgres-secrets
+          env:
+            - name: DATABASE_URL
+              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@tunecloud-db:5432/$(POSTGRES_DB)"
+            - name: MUSIC_DIR
+              value: "/music"                
           ports:
             - containerPort: 4000
           volumeMounts:

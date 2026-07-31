@@ -17,13 +17,9 @@ spec:
         image: postgres:16-alpine
         ports:
         - containerPort: 5432
-        env:
-        - name: POSTGRES_USER
-          value: "tunecloud"
-        - name: POSTGRES_PASSWORD
-          value: "tunecloud"
-        - name: POSTGRES_DB
-          value: "tunecloud"
+        envFrom:
+          - secretRef:
+              name: postgres-secrets
         readinessProbe:
           exec:
             command:
