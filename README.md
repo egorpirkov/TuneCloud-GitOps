@@ -1,74 +1,139 @@
 # TuneCloud GitOps & Helm Chart ⛵️
 
-This repository contains the **GitOps** configuration for deploying the [TuneCloud](https://github.com/egorpirkov/TuneCloud) application to a Kubernetes cluster. 
+This repository contains the **GitOps configuration** for deploying [TuneCloud](https://github.com/egorpirkov/TuneCloud) to a Kubernetes cluster.
 
-The configuration is packaged as a **Helm Chart** and is designed to be automatically synchronized and deployed by **ArgoCD** following the GitOps methodology.
+The application is packaged as a **Helm Chart** and deployed through **ArgoCD** using a GitOps workflow.
+
+---
+
+## 🎯 Purpose
+
+This repository is the **single source of truth for TuneCloud's Kubernetes deployment configuration**.
+
+It contains:
+
+* Helm templates for the application and supporting services
+* Deployment and service configuration
+* Ingress and persistent storage configuration
+* Prometheus `ServiceMonitor` resources
+* Application image versions and deployment parameters
+
+Application source code is maintained separately in the [TuneCloud repository](https://github.com/egorpirkov/TuneCloud).
 
 ---
 
 ## 📁 Repository Structure
 
-```
+```text
 .
-└── tunecloud/                      # Helm Chart directory
-    ├── Chart.yaml                  # Chart metadata (version, app version)
-    ├── values.yaml                 # Default configuration values (image tags, domains)
+└── tunecloud/
+    ├── Chart.yaml
+    ├── values.yaml
     ├── .helmignore
-    └── templates/                  # Kubernetes manifests
-        ├── client-*                # Frontend resources
-        ├── server-*                # Backend API resources
-        ├── postgres-*              # Database & Exporter resources
-        ├── covers-pvc.yaml         # Storage for music covers
-        ├── ingress.yaml            # Main application routing
-        └── grafana-ingress.yaml    # Monitoring routing
+    └── templates/
+        ├── client-*
+        ├── server-*
+        ├── postgres-*
+        ├── covers-pvc.yaml
+        ├── ingress.yaml
+        └── grafana-ingress.yaml
 ```
 
 ---
 
-## ☸️ Kubernetes Resources (Manifests)
+## ☸️ Kubernetes Resources
 
-The `templates/` directory defines all necessary Kubernetes entities to run the full TuneCloud stack in production.
+The Helm Chart defines the resources required to run the TuneCloud stack.
 
-### 🌐 Frontend (React / Nginx)
-- **`client-deployment.yaml`**: Deploys the Nginx web server containing the compiled React SPA.
-- **`client-service.yaml`**: Exposes the frontend pods internally (NodePort/ClusterIP).
+### 🌐 Frontend
 
-### ⚙️ Backend API (Node.js / Fastify)
-- **`server-deployment.yaml`**: Deploys the Node.js backend. Mounts necessary secrets and configuration for Spotify API, JWT, and Database connections.
-- **`server-service.yaml`**: Internal networking for the backend.
-- **`server-monitor.yaml`**: A `ServiceMonitor` Custom Resource (CRD) that tells the Prometheus Operator to scrape `/metrics` from the Fastify server.
+* `client-deployment.yaml` — deploys the Nginx server containing the compiled React SPA.
+* `client-service.yaml` — provides internal networking for the frontend.
+* `ingress.yaml` — routes external traffic to the frontend.
 
-### 🗄️ Database (PostgreSQL)
-- **`postgres-deployment.yaml`**: Deploys the PostgreSQL 16 database.
-- **`postgres-service.yaml`**: Exposes the database to the backend and exporter.
-- **`postgres-configmap.yaml`**: Contains `init.sql` for automatic schema creation and indexing on first boot.
-- **`postgres-pvc.yaml`**: PersistentVolumeClaim ensuring database data survives pod restarts.
+### ⚙️ Backend
 
-### 📊 Observability (PostgreSQL Exporter)
-- **`postgres-exporter-deployment.yaml`**: A sidecar-like exporter that translates Postgres metrics to Prometheus format.
-- **`postgres-exporter-service.yaml`**: Internal networking for the exporter.
-- **`postgres-exporter-monitor.yaml`**: `ServiceMonitor` to scrape database metrics.
-- **`grafana-ingress.yaml`**: Ingress rules for accessing the Grafana dashboards.
+* `server-deployment.yaml` — deploys the Node.js / Fastify API.
+* `server-service.yaml` — provides internal networking for the backend.
+* `server-monitor.yaml` — `ServiceMonitor` for scraping application metrics.
 
-### 💾 Shared Storage & Routing
-- **`covers-pvc.yaml`**: PersistentVolumeClaim to store downloaded album covers persistently.
-- **`ingress.yaml`**: Core routing configuration mapping `tunecloud.local` to the client, and `tunecloud.local/api` to the backend server.
+### 🗄️ PostgreSQL
 
----
+* `postgres-deployment.yaml` — deploys PostgreSQL 16.
+* `postgres-service.yaml` — provides internal database networking.
+* `postgres-configmap.yaml` — contains the initial database schema.
+* `postgres-pvc.yaml` — persistent storage for PostgreSQL data.
 
-## 🔄 The GitOps Workflow (CI/CD)
+### 📊 Observability
 
-This repository is the single source of truth for the cluster state. It operates within a fully automated GitOps pipeline:
+* `postgres-exporter-deployment.yaml` — deploys PostgreSQL Exporter.
+* `postgres-exporter-service.yaml` — provides internal networking for the exporter.
+* `postgres-exporter-monitor.yaml` — `ServiceMonitor` for PostgreSQL metrics.
+* `grafana-ingress.yaml` — exposes Grafana through an Ingress.
 
-1. **Continuous Integration**: When application code is pushed to the main TuneCloud repo, GitHub Actions builds new Docker images and pushes them to `ghcr.io`.
-2. **Configuration Update**: The CI pipeline automatically runs `yq` to patch the image tags in `tunecloud/values.yaml` and pushes a new commit to *this* repository.
-3. **Continuous Delivery**: **ArgoCD**, running inside the Kubernetes cluster, detects the new commit in this repository. It automatically synchronizes the new Helm Chart state, rolling out the updated Pods seamlessly.
+### 💾 Storage & Routing
+
+* `covers-pvc.yaml` — persistent storage for downloaded album covers.
+* `ingress.yaml` — routes `tunecloud.local` to the frontend and `tunecloud.local/api` to the backend.
 
 ---
 
-## 🛠️ Configuration (`values.yaml`)
+## 🔄 GitOps Workflow
 
-The `values.yaml` file exposes the configurable parameters of the chart. It typically looks like this:
+The repository is part of an automated CI/CD pipeline:
+
+```text
+TuneCloud
+    │
+    │ push to main
+    ▼
+GitHub Actions
+    │
+    ├── Build Docker images
+    ├── Push images → GHCR
+    └── Update image tags
+            │
+            ▼
+     TuneCloud-GitOps
+            │
+            │ Git commit
+            ▼
+          ArgoCD
+            │
+            │ sync
+            ▼
+       Kubernetes (k3s)
+```
+
+### 1. Continuous Integration
+
+A push to the `main` branch of the application repository triggers GitHub Actions.
+
+The pipeline:
+
+* builds the client and server Docker images;
+* tags images with the short Git commit SHA;
+* pushes the images to GitHub Container Registry.
+
+### 2. GitOps Configuration Update
+
+After successfully building the images, the CI pipeline uses `yq` to update the image tags in `tunecloud/values.yaml`.
+
+The updated configuration is committed and pushed to this repository.
+
+### 3. ArgoCD Deployment
+
+ArgoCD monitors this repository and detects changes to the Helm configuration.
+
+When a new commit is detected, ArgoCD synchronizes the desired state with the Kubernetes cluster and applies the updated workloads.
+
+---
+
+## 🛠️ Configuration
+
+Deployment parameters are configured through `tunecloud/values.yaml`.
+
+Example:
 
 ```yaml
 global:
@@ -76,35 +141,41 @@ global:
   grafanaDomain: grafana.tunecloud.local
 
 server:
-  image: ghcr.io/egorpirkov/tunecloud-server:sha-latest
+  image: ghcr.io/egorpirkov/tunecloud-server:abc1234
   replicas: 1
 
 client:
-  image: ghcr.io/egorpirkov/tunecloud-client:sha-latest
+  image: ghcr.io/egorpirkov/tunecloud-client:abc1234
   replicas: 1
 ```
 
-*(Note: Secrets are managed outside of this repository for security reasons and must be injected into the cluster separately as Kubernetes Secrets).*
+Secrets are not stored in this repository. Required Kubernetes Secrets must be created in the cluster before deployment.
 
 ---
 
 ## 🚀 Manual Deployment
 
-If you need to deploy this chart manually (without ArgoCD), you can use Helm directly:
+The chart can also be deployed directly with Helm without ArgoCD.
 
 ```bash
-# 1. Clone the GitOps repository
 git clone https://github.com/egorpirkov/TuneCloud-GitOps.git
 cd TuneCloud-GitOps
 
-# 2. Install the Helm Chart
-helm install tunecloud ./tunecloud -n tunecloud --create-namespace
+helm install tunecloud ./tunecloud \
+  -n tunecloud \
+  --create-namespace
 
-# 3. Check deployment status
 kubectl get pods -n tunecloud
 ```
 
-To update a manual deployment:
+To update an existing installation:
+
 ```bash
 helm upgrade tunecloud ./tunecloud -n tunecloud
 ```
+
+---
+
+## 📜 License
+
+GPL v3.0
