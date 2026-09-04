@@ -59,7 +59,7 @@ The Helm Chart defines the resources required to run the TuneCloud stack.
 
 ### 🗄️ PostgreSQL
 
-* `postgres-deployment.yaml` — deploys PostgreSQL 16.
+* `postgres-statefulset.yaml` — deploys PostgreSQL 16.
 * `postgres-service.yaml` — provides internal database networking.
 * `postgres-configmap.yaml` — contains the initial database schema.
 * `postgres-pvc.yaml` — persistent storage for PostgreSQL data.
